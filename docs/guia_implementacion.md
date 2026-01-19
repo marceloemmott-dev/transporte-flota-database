@@ -327,14 +327,27 @@ graph TD
 
 ---
 
-## 🚀 Próximos Pasos
+## 🚀 Estado Actual del Proyecto
 
 Una vez completada esta guía, tendrás:
-*   ✅ Estructura de base de datos lista.
-*   ✅ 3 vehículos de ejemplo.
-*   ✅ Posibilidad de ejecutar queries de BI.
 
-**Siguientes fases del proyecto:**
-*   Agregar entidad `Conductor`.
-*   Implementar `Viajes` y `Tracking`.
-*   Crear Stored Procedures para operaciones comunes.
+- ✅ Estructura de base de datos lista (3 schemas: core, catalogs, media).
+- ✅ 3 vehículos de ejemplo con datos reales.
+- ✅ Sistema de gestión de fotografías (preparado para AWS S3).
+- ✅ Posibilidad de ejecutar queries de BI.
+
+### Siguientes Fases (Roadmap)
+
+**Fase 2 – El Factor Humano:**
+- Agregar entidad `Conductor` con datos personales.
+- Tabla `LicenciaConducir` con fechas de vencimiento.
+- Relación `Vehiculo-Conductor` (asignaciones).
+
+**Fase 3 – Operación:**
+- Implementar `Viajes` y `HojaRuta`.
+- Tracking GPS en esquema `tracking`.
+
+**Fase 4 – Automatización:**
+- Crear Stored Procedures para operaciones comunes.
+- Triggers para auditoría automática.
+- Views materializadas para reportes frecuentes.
