@@ -4,17 +4,24 @@
 
 ---
 
+## 👥 Audiencia
+
+Este repositorio está orientado a **reclutadores técnicos**, **arquitectos de datos** y **desarrolladores backend** interesados en diseño de bases de datos escalables y patrones de arquitectura empresarial.
+
+---
+
 ## 📑 Tabla de Contenidos
 
 1. [Resumen Ejecutivo](#-resumen-ejecutivo)
-2. [El Problema que Aborda](#-el-problema-que-aborda-el-diseño)
-3. [Decisiones de Arquitectura](#️-decisiones-de-arquitectura)
-4. [Modelo Relacional](#-modelo-relacional-completo)
-5. [Decisiones Conscientes](#-decisiones-conscientes-trade-offs)
-6. [Evolución del Modelo](#️-evolución-del-modelo-roadmap)
-7. [Despliegue Técnico](#-despliegue-técnico)
-8. [Business Intelligence](#-business-intelligence-demo)
-9. [Conecta Conmigo](#-conecta-conmigo)
+2. [Stack Tecnológico](#-stack-tecnológico)
+3. [El Problema que Aborda](#-el-problema-que-aborda-el-diseño)
+4. [Decisiones de Arquitectura](#️-decisiones-de-arquitectura)
+5. [Modelo Relacional](#-modelo-relacional-completo)
+6. [Decisiones Conscientes](#-decisiones-conscientes-trade-offs)
+7. [Evolución del Modelo](#️-evolución-del-modelo-roadmap)
+8. [Despliegue Técnico](#-despliegue-técnico)
+9. [Business Intelligence](#-business-intelligence-demo)
+10. [Conecta Conmigo](#-conecta-conmigo)
 
 ---
 
@@ -22,7 +29,26 @@
 
 Este proyecto modela el **núcleo de datos** de un sistema de transporte diseñado para escalar desde un inventario básico de flota hasta una plataforma operativa completa (gestión de conductores, monitoreo de viajes y auditoría).
 
-El propósito de este repositorio no es simplemente "crear base de datos", sino demostrar **decisiones de arquitectura conscientes**, priorizando la **integridad referencial**, la **escalabilidad del esquema** y la **trazabilidad de datos** sobre la velocidad de implementación rápida. Se simula un entorno empresarial donde la calidad del dato es crítica.
+El propósito de este repositorio no es simplemente "crear base de datos", sino demostrar **decisiones de arquitectura conscientes**, priorizando la **integridad referencial**, la **escalabilidad del esquema** y la **trazabilidad de datos** sobre las entregas rápidas sin control de calidad. Se simula un entorno empresarial donde la calidad del dato es crítica.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Categoría | Tecnología | Versión | Propósito |
+| :--- | :--- | :--- | :--- |
+| **Base de Datos** | Microsoft SQL Server | 2022 (Linux) | Motor relacional principal |
+| **Lenguaje de Consulta** | T-SQL (Transact-SQL) | - | DDL, DML, scripting |
+| **Contenedorización** | Docker | 20+ | Entorno reproducible |
+| **Orquestación** | Docker Compose | 3.8+ | Gestión de servicios |
+| **Cloud Storage** | AWS S3 | - | Almacenamiento de multimedia (referencial) |
+| **Control de Versiones** | Git / GitHub | - | Versionado y colaboración |
+
+### Herramientas Recomendadas para Desarrollo
+
+- **Cliente SQL**: Azure Data Studio, SQL Server Management Studio (SSMS), o DBeaver
+- **Visualización BI**: Power BI, Tableau, o Metabase (para explotar los queries de ejemplo)
+- **Diagramas**: Mermaid (embebido en Markdown)
 
 ---
 
@@ -160,7 +186,7 @@ flowchart TB
 Como arquitectos, decidir **qué NO hacer** es tan importante como qué hacer.
 
 - **No se modelaron usuarios/roles aún**: Se priorizó estabilizar el dominio del negocio (`Flota`) antes de acoplar un sistema de seguridad. La seguridad se manejará en un esquema `security` dedicado en una fase futura.
-- **No hay "Soft Deletes" complejos**: Se utiliza una columna simple `Activo` (bit) en lugar de tablas de historial temporal por ahora, para mantener la simplicidad en las consultas iniciales.
+- **No se implementaron mecanismos de Soft Delete avanzados**: Se decidió usar una columna simple `Activo` (bit) en lugar de estrategias como Temporal Tables de SQL Server o patrones SCD Type 2, para mantener la simplicidad en las consultas iniciales. Esto podrá evolucionar según los requisitos de auditoría.
 - **No se almacenan fotos en BLOBs**: El diseño contempla que las imágenes de los vehículos (tarjetas de circulación, fotos de estado) residirán en un Object Storage (S3/Azure Blob), guardando solo la referencia (URL) en la BD.
 - **Solo una foto principal activa**: Aunque un vehículo puede tener múltiples fotos, solo una puede ser marcada como `EsPrincipal=1` y `Activa=1` para simplificar queries.
 
@@ -176,8 +202,7 @@ Este proyecto sigue una estrategia de implementación incremental:
 - Estandarización mediante catálogos.
 - Control de identidad (Patentes Únicas).
 
-### ✅ Fase 1.5 – Gestión de Multimedia (Completada)
-
+**Extensión de Fase 1 – Gestión de Multimedia (Completada):**
 - Soporte para fotografías de vehículos (referencial).
 - Arquitectura preparada para AWS S3.
 - Trazabilidad histórica de imágenes.
