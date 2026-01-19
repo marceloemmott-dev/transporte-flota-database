@@ -1,0 +1,16 @@
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Entorno y Secretos
+.env
+.env.local
+
+# Docker
+docker-compose.override.yml
+sqlserver_data/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
