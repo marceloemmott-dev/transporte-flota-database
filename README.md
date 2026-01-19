@@ -124,12 +124,15 @@ El entorno es 100% reproducible utilizando contenedores.
 
 ```text
 /database
-  ├── 01_schemas.sql    # Definición de Namespaces
-  ├── 02_catalogos.sql  # Tablas Maestras
-  ├── 03_vehiculo.sql   # Tablas Core
-  └── 04_seed_data.sql  # Datos iniciales (Pruebas)
-/docs                   # Diagramas y ADRs
-/infra                  # Docker Compose
+  ├── 01_schemas.sql           # Definición de Namespaces
+  ├── 02_catalogos.sql         # Tablas Maestras
+  ├── 03_vehiculo.sql          # Tablas Core
+  └── 04_seed_data.sql         # Datos iniciales (Pruebas)
+/docs
+  ├── diagrama_er.md           # Diagramas Entidad-Relación
+  └── guia_implementacion.md   # Guía paso a paso (RECOMENDADO)
+/infra
+  └── docker-compose.yml       # Configuración de Docker
 ```
 
 ### Quick Start
@@ -153,6 +156,12 @@ El entorno es 100% reproducible utilizando contenedores.
     Conectar a `localhost:1433` (User: `sa`, Pass: el de tu .env) y ejecutar los scripts SQL en orden numérico:
     *   `01` a `03`: Estructura.
     *   `04`: Datos de prueba (Seed).
+
+> 📘 **¿Primera vez implementando?** Consulta la [Guía de Implementación Detallada](./docs/guia_implementacion.md) que incluye:
+> - Diagramas de flujo paso a paso
+> - Explicación de cada tabla y sus campos
+> - Conceptos técnicos aplicados (Foreign Keys, Idempotencia, Schemas)
+> - Checklist de verificación
 
 ---
 
