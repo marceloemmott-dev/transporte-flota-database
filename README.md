@@ -1,149 +1,136 @@
-# Sistema de Transporte y Gestión de Flota
+# Sistema de Transporte y Gestión de Flota: Arquitectura de Datos
 
-> **Arquitectura de Base de Datos SQL Server con Docker**
-
-Este repositorio contiene el diseño, modelado e implementación de una base de datos relacional robusta para una empresa de transporte y logística. El proyecto simula un entorno empresarial real, enfocándose en la normalización, integridad de datos, seguridad y escalabilidad, utilizando las últimas tecnologías de **SQL Server 2022**.
-
-Este proyecto sirve como **portafolio técnico** para demostrar competencias en **Arquitectura de Datos**, **SQL Avanzado** y **DevOps (Docker)**.
+> **Estado**: Fase 1 (Modelado Core) | **Tech**: SQL Server 2022, Docker, T-SQL
 
 ---
 
-## 📖 Historia y Contexto del Proyecto
+## 📋 Resumen Ejecutivo
 
-Este repositorio no es solo una base de datos estática; es la **bitácora viva de un análisis incremental**.
+Este proyecto modela el **núcleo de datos** de un sistema de transporte diseñado para escalar desde un inventario básico de flota hasta una plataforma operativa completa (gestión de conductores, monitoreo de viajes y auditoría).
 
-Estamos simulando el proceso real de digitalización de una **Empresa de Transporte** que está creciendo. El proyecto evoluciona paso a paso:
-
-1.  **Fase 1: "El Inventario" (Estado Actual)**
-    *   *Problema*: La empresa necesita saber qué vehículos tiene, dónde están y en qué estado.
-    *   *Solución*: Se modeló el núcleo (`core`) con la entidad `Vehiculo`, apoyada por catálogos para evitar inconsistencias (estandarización de tipos, marcas y estados).
-
-2.  **Fase 2: "El Factor Humano" (Próximamente)**
-    *   *Desafío*: Asignar responsables. ¿Quién conduce qué?
-    *   *Plan*: Incorporar conductores, licencias y asignaciones.
-
-3.  **Fase 3: "Operaciones" (Futuro)**
-    *   *Desafío*: Controlar el movimiento.
-    *   *Plan*: Implementar hojas de ruta y tracking GPS.
-
-Cada commit en este repositorio representa una decisión de diseño tomada tras analizar los requisitos del negocio.
+El propósito de este repositorio no es simplemente "crear base de datos", sino demostrar **decisiones de arquitectura conscientes**, priorizando la **integridad referencial**, la **escalabilidad del esquema** y la **trazabilidad de datos** sobre la velocidad de implementación rápida. Se simula un entorno empresarial donde la calidad del dato es crítica.
 
 ---
 
-## 🎯 Objetivo del Proyecto
+## 🧐 El Problema que Aborda el Diseño
 
-El objetivo principal es diseñar una "Fuente de Verdad" confiable para las operaciones de una flota de vehículos. A diferencia de las bases de datos académicas simples, este proyecto aborda problemas reales:
+En el sector logístico, es común que la información de la flota comience dispersa en hojas de cálculo no estandarizadas. Esto escala rápidamente hacia problemas graves:
+1.  **Datos Sucios**: Vehículos con marcas escritas de 5 formas diferentes ("Ford", "FORD", "F ord").
+2.  **Duplicidad**: Mismo vehículo registrado dos veces con patentes mal formateadas.
+3.  **Falta de Auditoría**: Imposibilidad de saber el estado real de la capacidad operativa (¿Cuántos camiones tengo disponibles *realmente*?).
 
-- **Organización lógica**: Uso de *Schemas* para separar responsabilidades.
-- **Integridad**: Claves foráneas, constraints y tipos de datos adecuados.
-- **Estandarización**: Uso de tablas de catálogo para evitar redundancia y "números mágicos".
-- **Infraestructura como Código**: Despliegue reproducible mediante Docker.
-
-## 🛠️ Tecnologías
-
-- **Base de Datos**: Microsoft SQL Server 2022 (Linux container image).
-- **Infraestructura**: Docker & Docker Compose.
-- **Lenguaje**: T-SQL (Transact-SQL).
-- **Documentación**: Markdown & Mermaid Diagrams.
-
-## 📂 Estructura del Repositorio
-
-```bash
-transporte-flota/
-├── database/           # Scripts SQL (Source of Truth)
-│   ├── 01_schemas.sql    # Definición de estructura lógica (Namespaces)
-│   ├── 02_catalogos.sql  # Tablas de referencia (Enums en base de datos)
-│   └── 03_vehiculo.sql   # Tablas transaccionales/Core
-├── docs/               # Documentación técnica
-│   ├── diagrama_er.md    # Diagramas Entidad-Relación
-│   └── decisiones.md     # Registro de decisiones de arquitectura (ADR)
-├── infra/              # Infraestructura y Despliegue
-│   └── docker-compose.yml
-├── .env.example        # Plantilla de variables de entorno
-└── README.md           # Documentación principal
-```
-
-## 📐 Diseño y Arquitectura
-
-Se ha optado por una arquitectura basada en **Schemas** para modularizar el sistema. Esto permite una gestión de permisos granular y mejora la legibilidad.
-
-| Schema      | Descripción |
-|bP           | :--- |
-| **`core`**  | Contiene las entidades principales del negocio (Ej: `Vehiculo`, `Conductor`). |
-| **`catalogs`** | Tablas de búsqueda o referencia estática (Ej: `TipoVehiculo`, `EstadoVehiculo`). Equivalente a Enums. |
-| **`tracking`** | *(Futuro)* Historial de ubicaciones y telemetría. |
-| **`security`** | *(Futuro)* Gestión de usuarios, roles y auditoría. |
-
-### Entidad Principal: Vehículo
-
-La tabla `Vehiculo` es el corazón del sistema actual. Soporta tanto transporte de pasajeros como de carga mediante un diseño flexible:
-
-- **Normalización**: Tipos y Estados son claves foráneas a `catalogs`.
-- **Validación**: Constraints para asegurar la integridad (ej. Patentes únicas).
-
-## 🚀 Guía de Inicio Rápido (Quick Start)
-
-Sigue estos pasos para levantar el entorno de desarrollo localmente.
-
-### Prerrequisitos
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado y corriendo.
-
-### 1. Configuración de Entorno
-
-Clona el repositorio y configura las variables de entorno. Por seguridad, **nunca** subimos contraseñas al repositorio.
-
-```bash
-# Clona el repo (si no lo has hecho)
-git clone https://github.com/tu-usuario/transporte-flota.git
-cd transporte-flota
-
-# Crea el archivo de variables de entorno
-cp .env.example .env
-```
-*Tip: Puedes editar el archivo `.env` para cambiar la contraseña de SA si lo deseas.*
-
-### 2. Levantar la Base de Datos
-
-Utilizamos Docker Compose para orquestar el contenedor de SQL Server.
-
-```bash
-docker-compose -f infra/docker-compose.yml up -d
-```
-
-Verifica que el contenedor esté corriendo:
-```bash
-docker ps
-```
-
-### 3. Ejecutar Scripts SQL
-
-Conéctate a tu base de datos (usando **Azure Data Studio**, **SSMS** o **DBeaver**) con las credenciales de tu `.env`:
-- **Server**: `localhost,1433`
-- **User**: `sa`
-- **Password**: *(La que definiste en .env)*
-
-Ejecuta los scripts en el siguiente orden estricto para respetar las dependencias:
-
-1.  `database/01_schemas.sql` (Crea la estructura base)
-2.  `database/02_catalogos.sql` (Crea tablas sin dependencias)
-3.  `database/03_vehiculo.sql` (Crea tablas que dependen de catálogos)
-
-## ✅ Buenas Prácticas Aplicadas
-
-En este repositorio podrás observar:
-
-1.  **Idempotencia**: Todos los scripts SQL verifican la existencia de objetos (`IF NOT EXISTS`) antes de crear, permitiendo re-ejecuciones seguras.
-2.  **Naming Conventions**: Uso consistente de *PascalCase* para tablas y columnas, y nombres descriptivos en inglés o español (consistente).
-3.  **Seguridad**: No se exponen credenciales en el código (uso de `.env`).
-4.  **Separation of Concerns**: Datos maestros separados de datos transaccionales.
-
-## 🔮 Próximos Pasos (Roadmap)
-
-- [ ] Implementar Schema `tracking` para viajes y coordenadas GPS.
-- [ ] Agregar tabla `Mantenimiento` para gestión de reparaciones.
-- [ ] Crear Seed Data scripts para poblar catálogos automáticamente.
-- [ ] Implementar auditoría (campos `CreatedBy`, `UpdatedBy`).
+**La Solución Arquitectónica:**
+Diseñar una base de datos que actúe como una **Fuente de Verdad (Single Source of Truth)** estricta, utilizando esquemas para separar responsabilidades y catálogos para forzar la estandarización desde el nivel de datos.
 
 ---
 
-Hecho con 💻 y SQL Server.
+## 🏗️ Decisiones de Arquitectura
+
+### 1. Organización por Schemas (Namespaces)
+En lugar de volcar todas las tablas en el esquema por defecto (`dbo`), se implementó una separación lógica:
+
+| Schema | Propósito | Justificación |
+| :--- | :--- | :--- |
+| **`core`** | Entidades centrales del negocio (`Vehiculo`). | Aísla los datos transaccionales de alto valor. |
+| **`catalogs`** | Tablas de referencia (`TipoVehiculo`, `Estado`). | Separa los datos de configuración/maestros que cambian poco. |
+| **`tracking`** | *(Roadmap)* Datos de telemetría y GPS. | Anticipa el alto volumen de escritura segregándolo lógicamente. |
+
+### 2. Catálogos vs. ENUMs
+Se optó por tablas físicas en el esquema `catalogs` en lugar de usar `ENUMs` en el código de aplicación o `CHECK Constraints` rígidos.
+*   **Por qué**: Permite agregar nuevos tipos de vehículos o estados sin requerir una migración de base de datos o un despliegue de código. Facilita la integración con herramientas de BI (PowerBI/Tableau) que pueden leer las etiquetas directamente.
+
+### 3. Modelo Relacional Visual
+A continuación se presenta el diseño actual de la Fase 1:
+
+```mermaid
+erDiagram
+    %% Schema: catalogs
+    TipoVehiculo {
+        int Id PK
+        string Nombre
+    }
+    EstadoVehiculo {
+        int Id PK
+        string Nombre
+    }
+    ModalidadTransporte {
+        int Id PK
+        string Nombre
+    }
+
+    %% Schema: core
+    Vehiculo {
+        int Id PK
+        string Patente "Unique, Index"
+        int TipoVehiculoId FK
+        int EstadoVehiculoId FK
+        int ModalidadTransporteId FK
+        decimal CapacidadCarga
+        int CapacidadPasajeros
+        bool Activo
+    }
+
+    TipoVehiculo ||--o{ Vehiculo : "clasifica a"
+    EstadoVehiculo ||--o{ Vehiculo : "define disponibilidad"
+    ModalidadTransporte ||--o{ Vehiculo : "determina uso"
+```
+
+---
+
+## 🧠 Decisiones Conscientes (Trade-offs)
+
+Como arquitectos, decidir **qué NO hacer** es tan importante como qué hacer.
+
+*   **No se modelaron usuarios/roles aún**: Se priorizó estabilizar el dominio del negocio (`Flota`) antes de acoplar un sistema de seguridad. La seguridad se manejará en un esquema `security` dedicado en la Fase 4.
+*   **No hay "Soft Deletes" complejos**: Se utiliza una columna simple `Activo` (bit) en lugar de tablas de historial temporal por ahora, para mantener la simplicidad en las consultas iniciales.
+*   **No se almacenan fotos en BLOBs**: El diseño contempla que las imágenes de los vehículos (tarjetas de circulación, fotos de estado) residirán en un Object Storage (S3/Azure Blob), guardando solo la referencia (URL) en la BD.
+
+---
+
+## 🗺️ Evolución del Modelo (Roadmap)
+
+Este proyecto sigue una estrategia de implementación incremental:
+
+### ✅ Fase 1 – Núcleo de Flota (Actual)
+*   Centralización del inventario de vehículos.
+*   Estandarización mediante catálogos.
+*   Control de identidad (Patentes Unicas).
+
+### 🚧 Fase 2 – El Factor Humano (En Progreso)
+*   Entidad `Conductor` y `Licencias`.
+*   Relación `Vehiculo-Conductor` (Asignaciones).
+*   Historial de asignaciones.
+
+### 🔮 Fase 3 – Operación y Observabilidad
+*   Entidad `Viaje` y `HojaRuta`.
+*   Tracking de eventos (Salida, Llegada, Incidente).
+*   Integración con datos GPS.
+
+---
+
+## 💻 Despliegue Técnico
+
+El entorno es 100% reproducible utilizando contenedores.
+
+### Estructura del Repositorio
+```text
+/database
+  ├── 01_schemas.sql    # Definición de Namespaces
+  ├── 02_catalogos.sql  # Tablas Maestras
+  └── 03_vehiculo.sql   # Tablas Core
+/docs                   # Diagramas y ADRs
+/infra                  # Docker Compose
+```
+
+### Quick Start
+1.  **Clonar y configurar**:
+    ```bash
+    git clone https://github.com/tu-usuario/transporte-flota-database.git
+    cp .env.example .env
+    ```
+2.  **Levantar SQL Server**:
+    ```bash
+    docker-compose -f infra/docker-compose.yml up -d
+    ```
+3.  **Desplegar Esquema**:
+    Conectar a `localhost:1433` y ejecutar los scripts en orden numérico (01 -> 02 -> 03).
