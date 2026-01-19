@@ -15,9 +15,10 @@ El propósito de este repositorio no es simplemente "crear base de datos", sino 
 ## 🧐 El Problema que Aborda el Diseño
 
 En el sector logístico, es común que la información de la flota comience dispersa en hojas de cálculo no estandarizadas. Esto escala rápidamente hacia problemas graves:
+
 1.  **Datos Sucios**: Vehículos con marcas escritas de 5 formas diferentes ("Ford", "FORD", "F ord").
 2.  **Duplicidad**: Mismo vehículo registrado dos veces con patentes mal formateadas.
-3.  **Falta de Auditoría**: Imposibilidad de saber el estado real de la capacidad operativa (¿Cuántos camiones tengo disponibles *realmente*?).
+3.  **Falta de Auditoría**: Imposibilidad de saber el estado real de la capacidad operativa (¿Cuántos camiones tengo disponibles _realmente_?).
 
 **La Solución Arquitectónica:**
 Diseñar una base de datos que actúe como una **Fuente de Verdad (Single Source of Truth)** estricta, utilizando esquemas para separar responsabilidades y catálogos para forzar la estandarización desde el nivel de datos.
@@ -27,6 +28,7 @@ Diseñar una base de datos que actúe como una **Fuente de Verdad (Single Source
 ## 🏗️ Decisiones de Arquitectura
 
 ### 1. Organización por Schemas (Namespaces)
+
 En lugar de volcar todas las tablas en el esquema por defecto (`dbo`), se implementó una separación lógica:
 
 | Schema | Propósito | Justificación |
@@ -36,10 +38,13 @@ En lugar de volcar todas las tablas en el esquema por defecto (`dbo`), se implem
 | **`tracking`** | *(Roadmap)* Datos de telemetría y GPS. | Anticipa el alto volumen de escritura segregándolo lógicamente. |
 
 ### 2. Catálogos vs. ENUMs
+
 Se optó por tablas físicas en el esquema `catalogs` en lugar de usar `ENUMs` en el código de aplicación o `CHECK Constraints` rígidos.
+
 *   **Por qué**: Permite agregar nuevos tipos de vehículos o estados sin requerir una migración de base de datos o un despliegue de código. Facilita la integración con herramientas de BI (PowerBI/Tableau) que pueden leer las etiquetas directamente.
 
 ### 3. Modelo Relacional Visual
+
 A continuación se presenta el diseño actual de la Fase 1:
 
 ```mermaid
@@ -92,16 +97,19 @@ Como arquitectos, decidir **qué NO hacer** es tan importante como qué hacer.
 Este proyecto sigue una estrategia de implementación incremental:
 
 ### ✅ Fase 1 – Núcleo de Flota (Actual)
+
 *   Centralización del inventario de vehículos.
 *   Estandarización mediante catálogos.
 *   Control de identidad (Patentes Unicas).
 
 ### 🚧 Fase 2 – El Factor Humano (En Progreso)
+
 *   Entidad `Conductor` y `Licencias`.
 *   Relación `Vehiculo-Conductor` (Asignaciones).
 *   Historial de asignaciones.
 
 ### 🔮 Fase 3 – Operación y Observabilidad
+
 *   Entidad `Viaje` y `HojaRuta`.
 *   Tracking de eventos (Salida, Llegada, Incidente).
 *   Integración con datos GPS.
@@ -113,30 +121,68 @@ Este proyecto sigue una estrategia de implementación incremental:
 El entorno es 100% reproducible utilizando contenedores.
 
 ### Estructura del Repositorio
+
 ```text
 /database
   ├── 01_schemas.sql    # Definición de Namespaces
   ├── 02_catalogos.sql  # Tablas Maestras
-  └── 03_vehiculo.sql   # Tablas Core
+  ├── 03_vehiculo.sql   # Tablas Core
+  └── 04_seed_data.sql  # Datos iniciales (Pruebas)
 /docs                   # Diagramas y ADRs
 /infra                  # Docker Compose
 ```
 
 ### Quick Start
+
 1.  **Clonar y configurar**:
-```bash
-git clone https://github.com/marceloemmott-dev/transporte-flota-database.git
-cd transporte-flota
-cp .env.example .env
-```
+
+    ```bash
+    git clone https://github.com/marceloemmott-dev/transporte-flota-database.git
+    cd transporte-flota
+    cp .env.example .env
+    ```
 
 2.  **Levantar SQL Server**:
-```bash
-docker-compose -f infra/docker-compose.yml up -d
+
+    ```bash
+    docker-compose -f infra/docker-compose.yml up -d
+    ```
+
+3.  **Desplegar Esquema y Datos**:
+
+    Conectar a `localhost:1433` (User: `sa`, Pass: el de tu .env) y ejecutar los scripts SQL en orden numérico:
+    *   `01` a `03`: Estructura.
+    *   `04`: Datos de prueba (Seed).
+
+---
+
+## 📊 Business Intelligence (Demo)
+
+Una vez cargados los datos semilla (`04_seed_data.sql`), la base de datos es capaz de responder preguntas de negocio inmediatas.
+
+**Escenario 1: Disponibilidad de Flota**
+> *"¿Cuántos vehículos tengo activos por tipo?"*
+
+```sql
+SELECT 
+    tv.Nombre as Tipo,
+    COUNT(v.VehiculoId) as Cantidad,
+    STRING_AGG(v.Patente, ', ') as Unidades
+FROM core.Vehiculo v
+JOIN catalogs.TipoVehiculo tv ON v.TipoVehiculoId = tv.TipoVehiculoId
+WHERE v.EstadoVehiculoId = (SELECT EstadoVehiculoId FROM catalogs.EstadoVehiculo WHERE Nombre = 'Activo')
+GROUP BY tv.Nombre;
 ```
 
-3.  **Desplegar Esquema**:
-    Conectar a `localhost:1433` (User: `sa`, Pass: el de tu .env) y ejecutar los scripts SQL en orden numérico (01 -> 02 -> 03).
+**Escenario 2: Capacidad de Carga Total**
+> *"¿Cuál es nuestra capacidad teórica de carga actual?"*
+
+```sql
+SELECT 
+    SUM(CapacidadCargaKg) / 1000.0 as ToneladasTotales
+FROM core.Vehiculo
+WHERE Activo = 1;
+```
 
 ---
 
