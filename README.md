@@ -124,13 +124,33 @@ El entorno es 100% reproducible utilizando contenedores.
 
 ### Quick Start
 1.  **Clonar y configurar**:
-    ```bash
-    git clone https://github.com/tu-usuario/transporte-flota-database.git
-    cp .env.example .env
-    ```
+```bash
+git clone https://github.com/marceloemmott-dev/transporte-flota-database.git
+cd transporte-flota
+cp .env.example .env
+```
+
 2.  **Levantar SQL Server**:
-    ```bash
-    docker-compose -f infra/docker-compose.yml up -d
-    ```
+```bash
+docker-compose -f infra/docker-compose.yml up -d
+```
+
 3.  **Desplegar Esquema**:
-    Conectar a `localhost:1433` y ejecutar los scripts en orden numérico (01 -> 02 -> 03).
+    Conectar a `localhost:1433` (User: `sa`, Pass: el de tu .env) y ejecutar los scripts SQL en orden numérico (01 -> 02 -> 03).
+
+---
+
+## 🤝 Conecta Conmigo
+
+Este proyecto es parte de mi portafolio profesional como Desarrollador Backend y Arquitecto de Datos.
+
+*   **GitHub**: [marceloemmott-dev](https://github.com/marceloemmott-dev)
+*   **LinkedIn**: [Marcelo Emmott](https://www.linkedin.com/in/marcelo-emmott/)
+
+---
+
+## 🌟 Mensaje Final
+
+> *"La calidad del software no es un acto, es un hábito. En este repositorio busco demostrar que el diseño de bases de datos es la piedra angular de cualquier sistema empresarial robusto."*
+
+¡Gracias por visitar! 🚀
